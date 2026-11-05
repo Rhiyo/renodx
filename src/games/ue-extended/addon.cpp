@@ -1027,6 +1027,18 @@ void AddMixtapeUpgrades() {
   });
 }
 
+void AddQueensDomainUpgrades() {
+  // Tonemap target follows the render scale; allow for rounding (e.g. 1707x960 at 2560x1440)
+  renodx::mods::swapchain::swap_chain_upgrade_targets.push_back({
+      .old_format = reshade::api::format::b8g8r8a8_typeless,
+      .new_format = reshade::api::format::r16g16b16a16_float,
+      .use_resource_view_cloning = true,
+      .aspect_ratio = renodx::mods::swapchain::SwapChainUpgradeTarget::BACK_BUFFER,
+      .aspect_ratio_tolerance = 0.01f,
+      .usage_include = reshade::api::resource_usage::render_target,
+  });
+}
+
 void AddGamePatches() {
   auto process_path = renodx::utils::platform::GetCurrentProcessPath();
   auto filename = process_path.filename().string();
@@ -1040,6 +1052,8 @@ void AddGamePatches() {
     AddSonicRacingCrossWorldsUpgrades();
   } else if (product_name == "Mixtape") {
     AddMixtapeUpgrades();
+  } else if (product_name == "Queens Domain") {
+    AddQueensDomainUpgrades();
   } else {
     return;
   }
@@ -1340,9 +1354,7 @@ const std::unordered_map<std::string, GameSettings> GAME_SETTINGS = {
     {
         "Queens Domain",
         GameSettings{
-            {
-                {"Upgrade_B8G8R8A8_TYPELESS", UPGRADE_TYPE_OUTPUT_RATIO},
-            },
+            {},  // Tonemap target upgrade lives in AddQueensDomainUpgrades()
             {},
             {
                 0xB696D110,  // Post-tonemap material with grading LUT
